@@ -2,3 +2,4 @@ strands-agents[openai]
 strands-agents-tools
 python-dotenv
 tavily-python
+google-genai

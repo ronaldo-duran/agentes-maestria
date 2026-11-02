@@ -2,15 +2,17 @@ import os
 
 from dotenv import load_dotenv
 from strands import Agent, tool
-from strands.models.bedrock import BedrockModel
+from strands.models.gemini import GeminiModel
 from strands_tools import calculator, http_request, file_write
 from tavily import TavilyClient
 
 
 load_dotenv()
 
-# Configura la API key de Bedrock como bearer token
-os.environ["AWS_BEARER_TOKEN_BEDROCK"] = os.getenv("AWS_BEARER_TOKEN_BEDROCK", "")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+if not gemini_api_key:
+    raise ValueError("Falta GEMINI_API_KEY en el entorno o en el archivo .env")
+
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 
 @tool
@@ -38,21 +40,24 @@ def busqueda_papers(busqueda: str) -> dict:
 @tool
 def search_agent(consulta: str) -> list[dict]:
     """
-    Procesa y responde a las consultas de investigación de papers
+    Procesa y responde a las consultas de investigación de papers.
 
     Args:
-        busqueda: una consulta de investigación requiriendo fuentes de papers
+        busqueda: str Una consulta de investigacion requieriendo fuentes de papers
     Returns:
-        Una lista con los resultados de la consulta, cada elemento de la lista es un diccionario con la siguiente estrctura:
-            - url: url del paper encontrado
-            - doi: doi del paper encontrado
-            - title: titulo del paper encontrado
-            - abstract: resumen del paper encontrado
-            - score: score de relevancia la busqueda en tavily
+        Una lista con los resultados de la consulta, cada elemento de la lista es un diccionario con la siguiente estructura
+          - url: la url del paper
+          - doi: el doi del paper
+          - title: el titulo del paper
+          - abstract: el resumen del paper
+          - score: score de relevancia la busqueda en tavily
     """
-    BUSQUEDA_SYSTEM_PROMPT = """Eres un asistente para estudiantes de maestría que deben encontrar papers para construir su estado del arte.
-    Enfocate solo en proveer información actual y bien organizada para responder la solicitud del estudiante.
-    Siempre cita las fuentes de ser posible."""
+
+    BUSQUEDA_SYSTEM_PROMPT = """
+    Eres un asistente para estudiantes de maestría que deben encontrar papers para construir su estado del arte.
+    Enfocate solo en proveer información factual y bien organizada para responder la solicitud del estudiante.
+    Siempre cita las fuentes de ser posible.
+    """
 
     agent = Agent(
         model=model,
@@ -94,9 +99,9 @@ def bibtext_agent(papers_list: list[dict],  score_filtro:float=0.5) -> str:
 
   return agent(papers_list, score_filtro)
 
-model = BedrockModel(
-    model_id="global.anthropic.claude-opus-4-6-v1",
-    region_name="us-east-1",
+model = GeminiModel(
+    model_id=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+    client_args={"api_key": gemini_api_key},
 )
 
 ORQUESTADOR_SYSTEM_PROMPT = """

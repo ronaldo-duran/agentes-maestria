@@ -2,15 +2,17 @@ import os
 
 from dotenv import load_dotenv
 from strands import Agent, tool
-from strands.models.bedrock import BedrockModel
+from strands.models.gemini import GeminiModel
 from strands_tools import calculator, http_request, file_write
 from tavily import TavilyClient
 
 
 load_dotenv()
 
-# Configura la API key de Bedrock como bearer token
-os.environ["AWS_BEARER_TOKEN_BEDROCK"] = os.getenv("AWS_BEARER_TOKEN_BEDROCK", "")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+if not gemini_api_key:
+    raise ValueError("Falta GEMINI_API_KEY en el entorno o en el archivo .env")
+
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 
 @tool
@@ -35,9 +37,9 @@ def busqueda_papers(busqueda: str) -> dict:
     )
     return response
 
-model = BedrockModel(
-    model_id="global.anthropic.claude-opus-4-6-v1",
-    region_name="us-east-1",
+model = GeminiModel(
+    model_id=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+    client_args={"api_key": gemini_api_key},
 )
 
 agent = Agent(

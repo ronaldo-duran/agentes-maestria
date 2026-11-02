@@ -1,11 +1,11 @@
-# Strands Agent con OpenAI
+# Agentes Strands con Gemini
 
-Aplicación de agente IA construida con [Strands Agents SDK](https://strandsagents.com/) usando OpenAI como proveedor de modelo.
+Aplicación de agentes IA construida con [Strands Agents SDK](https://strandsagents.com/) usando Gemini de Google como proveedor de modelo.
 
 ## Requisitos previos
 
 - Python 3.10+
-- Una API key de OpenAI
+- Una API key de Gemini de [Google AI Studio](https://aistudio.google.com/apikey)
 
 ## Instalación
 
@@ -37,4 +37,14 @@ source .venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
+
+4. Copia `.env.example` como `.env` y configura:
+
+```env
+GEMINI_API_KEY=tu_api_key_de_google_ai_studio
+GEMINI_MODEL=gemini-2.5-flash
+TAVILY_API_KEY=tu_api_key_de_tavily
+```
+
+`GEMINI_MODEL` es opcional. Puedes cambiarlo por otro modelo disponible en tu cuenta; el valor predeterminado está pensado para el nivel gratuito.
  
